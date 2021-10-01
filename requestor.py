@@ -35,7 +35,7 @@ async def main(slices: List[str], auto_editor_args:str,subnet_tag="devnet-beta.2
             output_dest = f"/golem/output/{basename}"
 
             ctx.send_file(task.data,input_dest)
-            ctx.run(f"auto-editor",input_dest,auto_editor_args,"--debug","--no-open","--no_progress","--ouptut_file",output_dest)
+            ctx.run(f"/usr/local/bin/auto-editor",input_dest,"--debug","--no-open","--no_progress","--output_file",output_dest)
             ctx.download_file(output_dest,os.path.join(TEMPDIR,"output",basename))
             
             try:
@@ -52,7 +52,7 @@ async def main(slices: List[str], auto_editor_args:str,subnet_tag="devnet-beta.2
     timeout = timedelta(minutes=max(min(init_overhead + len(slices) * 2, max_timeout), min_timeout))
 
     async with Golem(
-        budget=10.0,
+        budget=50.0,
         subnet_tag=subnet_tag,
         driver=payment_driver,
         network=payment_network,
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     length = float(subprocess.run(f"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {input_path}".split(" "),stdout=subprocess.PIPE).stdout.decode())
 
     # slice_length in seconds
-    slice_length = 60
+    slice_length = 600
 
     slices = [input_path]
 
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     print(slices)
     os.mkdir(os.path.join(TEMPDIR,"output"))
 
-    auto_editor_args = " ".join(sys.argv[2:] + ["--no-open"])
+    auto_editor_args = " ".join(sys.argv[2:])
 
     loop = asyncio.get_event_loop()
     task = loop.create_task(
@@ -145,8 +145,10 @@ if __name__ == '__main__':
     # recombine finished video
     cat_list = os.path.join(TEMPDIR,"cat.txt")
     with open(cat_list,'w') as fh:
-        fh.write("\n".join(f for f in os.listdir(os.path.join(TEMPDIR,"output"))))
+        fh.write("\n".join(f"file '{f}'" for f in os.listdir(os.path.join(TEMPDIR,"output"))))
     output_dest = os.path.join(os.path.dirname(input_path),f"{name_no_ext}_ALTERED.{ext}")
-    subprocess.run(f"ffmpeg -f concat -safe 0 -i {cat_list} -c copy {output_dest}")
+    subprocess.run(f"ffmpeg -f concat -safe 0 -i {cat_list} -c copy {output_dest}".split(" "))
+
+    die()
         
    

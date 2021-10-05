@@ -22,6 +22,8 @@ TEMPDIR = ""
 
 # old hash=497f08b035b71f9afbdca1f9430dd4c044b4e6cfe8dfa185e203de58
 async def golem_main(slices: List[str], auto_editor_args:str,budget=10,subnet_tag="devnet-beta.2",payment_driver="zksync",payment_network="rinkeby"):
+    print("##################")
+    print(subnet_tag,payment_driver,payment_network)
     package = await vm.repo(
         image_hash="e0c9fc00d3a786ab849908cc75f091fe5026853591f80122e027d123",
         min_mem_gib=4.0,
@@ -92,7 +94,7 @@ def parse_args():
     golem_options.add_argument("--subnet_tag",default="devnet-beta.2",help="golem subnet [default: devnet-beta.2] [possible values: devnet-beta.2, mainnet]")
     golem_options.add_argument("--payment_driver",default="zksync", help="golem payment driver [default: zksync] [possible values: zksync, erc20]")
     golem_options.add_argument("--payment_network",default="rinkeby", help="golem payment network [default: rinkeby] [possible values: mainnet, rinkeby")
-
+    golem_options.set_defaults(budget=10,subnet_tag="devnet-beta.2",payment_driver="zksync",payment_network="rinkeby")
 
     return parser.parse_args()
 
@@ -182,10 +184,10 @@ def main():
 
     # get length
     # TODO: use pyav for better compatibility, not sure if this works on windows
-    length = float(subprocess.run(f"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"{input_path}\"".split(" "),stdout=subprocess.PIPE).stdout.decode())
+    length = float(subprocess.run(f"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {input_path}".split(" "),stdout=subprocess.PIPE).stdout.decode())
 
     # slice_length in seconds
-    slice_length = 6
+    slice_length = 600
 
     slices = [input_path]
 
@@ -193,7 +195,7 @@ def main():
         # make equal slices close enough to target length
         num_slices = length // slice_length
         slice_length = int(length // num_slices) + 1
-        print(slice_length)
+        log.debug(f"Using slice length {slice_length}s")
 
         temp_input_dir = os.path.join(TEMPDIR,"input")  
         # split into slices
@@ -208,8 +210,6 @@ def main():
     
     print(slices)
     os.mkdir(os.path.join(TEMPDIR,"output"))
-
-    auto_editor_args = " ".join(sys.argv[2:])
     
     enable_default_logger(log_file="/home/golem/output.log")
 
@@ -245,7 +245,7 @@ def main():
     # recombine finished video
     cat_list = os.path.join(TEMPDIR,"cat.txt")
     with open(cat_list,'w') as fh:
-        fh.write("\n".join(f"file '{f}'" for f in os.listdir(os.path.join(TEMPDIR,"output"))))
+        fh.write("\n".join(f"file '{f}'" for f in sorted(os.listdir(os.path.join(TEMPDIR,"output")))))
     subprocess.run(f"ffmpeg -f concat -safe 0 -i {cat_list} -c copy \"{output_path}\"".split(" "))
 
     die()

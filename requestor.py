@@ -22,26 +22,25 @@ TEMPDIR = ""
 
 # old hash=497f08b035b71f9afbdca1f9430dd4c044b4e6cfe8dfa185e203de58
 async def golem_main(slices: List[str], auto_editor_args:str,budget=10,subnet_tag="devnet-beta.2",payment_driver="zksync",payment_network="rinkeby"):
-    print("##################")
-    print(subnet_tag,payment_driver,payment_network)
     package = await vm.repo(
         image_hash="e0c9fc00d3a786ab849908cc75f091fe5026853591f80122e027d123",
         min_mem_gib=4.0,
         min_storage_gib=2.0,
-        min_cpu_threads=4
+        min_cpu_threads=1
     )
     async def worker(ctx: WorkContext, tasks):
         async for task in tasks:
             basename = os.path.basename(task.data)
             input_dest = f"/golem/input/{basename}"
             output_dest = f"/golem/output/{basename}"
-
+            # TODO: send longer/more chunks to providers with more cores
             ctx.send_file(task.data,input_dest)
-            ctx.run(f"/usr/local/bin/auto-editor",input_dest,auto_editor_args,"--output_file",output_dest)
+            args = " ".join([input_dest,auto_editor_args,"--output_file",output_dest]).split(' ')
+            ctx.run("/usr/local/bin/auto-editor",*args)
             ctx.download_file(output_dest,os.path.join(TEMPDIR,"output",basename))
             
             try:
-                yield ctx.commit(timeout=timedelta(minutes=10))
+                yield ctx.commit(timeout=timedelta(minutes=60))
                 task.accept_result(result=output_dest)
             except BatchTimeoutError:
                 print(f"Task {task} timed out on {ctx.provider_name}, time: {task.running_time}",file=sys.stderr)
@@ -49,8 +48,8 @@ async def golem_main(slices: List[str], auto_editor_args:str,budget=10,subnet_ta
             
 
 
-    init_overhead = 3
-    min_timeout, max_timeout = 6, 30
+    init_overhead = 10
+    min_timeout, max_timeout = 6, 60
     timeout = timedelta(minutes=max(min(init_overhead + len(slices) * 2, max_timeout), min_timeout))
 
     async with Golem(
@@ -67,7 +66,7 @@ async def golem_main(slices: List[str], auto_editor_args:str,budget=10,subnet_ta
             worker,
             [Task(data=s) for s in slices],
             payload=package,
-            max_workers=min(len(slices),10),
+            max_workers=min(len(slices),25),
             timeout=timeout
         )
         async for task in completed_tasks:
@@ -89,7 +88,7 @@ def parse_args():
     parser.add_argument('-q','--quiet',dest="quiet", action="store_true", help="No info level output, errors only")
 
     golem_options = parser.add_argument_group("Golem Options","Settings for the golem network configuration. Default is to run on testnet")
-    golem_options.add_argument("--bugdet",default=10,type=float, help="bugdet in GLM or tGML for the task")
+    golem_options.add_argument("--budget",default=10,type=float, help="bugdet in GLM or tGML for the task")
     golem_options.add_argument("--mainnet",action="store_true",help="equivalent to --subnet_tag=mainnet --payment_driver=zksync --payment_network=mainnet")
     golem_options.add_argument("--subnet_tag",default="devnet-beta.2",help="golem subnet [default: devnet-beta.2] [possible values: devnet-beta.2, mainnet]")
     golem_options.add_argument("--payment_driver",default="zksync", help="golem payment driver [default: zksync] [possible values: zksync, erc20]")
@@ -101,6 +100,7 @@ def parse_args():
 def die():
     # at the end
     # delete tempdir
+    log.info("Removing tempdir")
     shutil.rmtree(TEMPDIR)
     exit(0)
 
@@ -184,14 +184,17 @@ def main():
 
     # get length
     # TODO: use pyav for better compatibility, not sure if this works on windows
-    length = float(subprocess.run(f"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {input_path}".split(" "),stdout=subprocess.PIPE).stdout.decode())
-
+    cmd = ["ffprobe","-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", input_path]
+    log.info(f"Running: {' '.join(cmd)}")
+    length = float(subprocess.run(cmd,stdout=subprocess.PIPE).stdout.decode())
     # slice_length in seconds
-    slice_length = 600
+    slice_length = 300
 
     slices = [input_path]
 
-    if length > slice_length:
+    single_slice = False
+
+    if length > slice_length and not single_slice:
         # make equal slices close enough to target length
         num_slices = length // slice_length
         slice_length = int(length // num_slices) + 1
@@ -201,17 +204,19 @@ def main():
         # split into slices
         os.mkdir(temp_input_dir)
 
-        slice_dest = os.path.join(TEMPDIR,"input",f"{name_no_ext}_%05d.{ext}")
+        slice_dest = os.path.join(TEMPDIR,"input",f"slice_%05d.{ext}")
         
         # TODO: use pyav for better compatibility, not sure if this works on windows
-        subprocess.run(f"ffmpeg -v error -i \"{input_path}\" -c copy -map 0 -segment_time {slice_length} -f segment -reset_timestamps 1 {slice_dest}".split(" "),stdout=sys.stdout)
-        print(TEMPDIR)
+        cmd = ["ffmpeg", "-v", "error", "-hide_banner", "-i", input_path, "-c", "copy", "-map", "0", "-segment_time", str(slice_length), "-f", "segment", "-reset_timestamps", "1", slice_dest]
+        subprocess.run(cmd,stdout=sys.stdout)
         slices = [os.path.join(temp_input_dir,f) for f in os.listdir(temp_input_dir)]
     
-    print(slices)
+    log.debug("SLICES:")
+    log.debug("\n".join(slices))
+
     os.mkdir(os.path.join(TEMPDIR,"output"))
     
-    enable_default_logger(log_file="/home/golem/output.log")
+    # enable_default_logger(log_file="/home/golem/output.log")
 
     loop = asyncio.get_event_loop()
     task = loop.create_task(
@@ -243,10 +248,14 @@ def main():
 
 
     # recombine finished video
-    cat_list = os.path.join(TEMPDIR,"cat.txt")
-    with open(cat_list,'w') as fh:
-        fh.write("\n".join(f"file '{f}'" for f in sorted(os.listdir(os.path.join(TEMPDIR,"output")))))
-    subprocess.run(f"ffmpeg -f concat -safe 0 -i {cat_list} -c copy \"{output_path}\"".split(" "))
+    if len(slices) > 1:
+        cat_list = os.path.join(TEMPDIR,"cat.txt")
+        with open(cat_list,'w') as fh:
+            fh.write("\n".join(f"file '{os.path.join('output',f)}'" for f in sorted(os.listdir(os.path.join(TEMPDIR,"output")))))
+        cmd = ["ffmpeg", "-y", "-hide_banner", "-f", "concat", "-safe", "0", "-i", cat_list, "-c", "copy", output_path]
+        subprocess.run(cmd)
+    else:
+        shutil.move(os.path.join(TEMPDIR,"output",slices[0]),output_path)
 
     die()
 

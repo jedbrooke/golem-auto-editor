@@ -24,7 +24,7 @@ speedup test:
 ```auto-editor example_long.mp4 --has-vfr no --video_codec libx264 [--video_speed 1.25]```
 | System | normal test | speed up test |
 | -- | --- | -- |
-| local system | | |
+| local system | 104m2.400s | |
 | golem testnet | 44m25.005s | 39m46.655s |
 | golem mainnet | | |
 

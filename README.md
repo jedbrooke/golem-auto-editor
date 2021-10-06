@@ -6,7 +6,7 @@ To run you first need to yave yagna installed and the yagna daemon running. Inst
 
 Running the program looks like: 
 
-```python3 requstor.py INPUT_FILE [-l, --length <seconds>] [--auto-editor-args="[ARGS]"] [--output ]```
+```python3 requstor.py INPUT_FILE [--auto-editor-args="[ARGS]"] [--output ]```
 
 `INPUT_FILE` is the file you want processed. Although auto-editor supports multiple files as input, this program currently does not. Additionally, any args regarding output to in the `auto-editor-args` field will be ignored, as those will be overwritten by the program.
 

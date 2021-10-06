@@ -2,7 +2,7 @@
 Run Auto-Editor on the Golem Network.
 
 ## Running
-To run you first need to yave yagna installed and the yagna daemon running. Instructions on how to do that [here](https://handbook.golem.network/requestor-tutorials/flash-tutorial-of-requestor-development/run-first-task-on-golem).
+To run you first need to yave yagna installed and the yagna daemon running. Instructions on how to do that [here](https://handbook.golem.network/requestor-tutorials/flash-tutorial-of-requestor-development) and [here](https://handbook.golem.network/requestor-tutorials/flash-tutorial-of-requestor-development/run-first-task-on-golem).
 
 Running the program looks like: 
 

@@ -30,7 +30,7 @@ if you want to modify or build the docker image yourself you will need some addi
 [Auto-Editor](https://auto-editor.com/) is a command line tool to automate some simple video editiing tasks, such as cutting out silence and dead-space. Great for students who want to watch lecture videos in less time, or content creators editing a long interview.
 
 ## Why do we need Golem?
-you can absolutely run auto-editor on your own computer, but the video encoding and other processing that it performs can be very intensive, so distributing it over many computers can help speed it up greatly. Or, it can make processing of long videos feasible on lower spec machines, potentially even a Chromebook. 
+you can absolutely run auto-editor on your own computer, but the video encoding and other processing that it performs can be very intensive, so distributing it over many computers can help speed it up greatly. Or, it can make processing of long videos feasible on lower spec machines, potentially even a Chromebook. See [benchmark.md](benchmark.md) for an example of the speedup. 
 
 
 

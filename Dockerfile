@@ -6,7 +6,7 @@ RUN apt update -y
 RUN apt install --no-install-recommends ffmpeg -y
 
 # golem volume initialization
-VOLUME /golem/input /golem/output
+VOLUME /golem/input /golem/output /golem/work
 WORKDIR /golem/work
 
 # copy example file for testing

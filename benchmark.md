@@ -28,4 +28,4 @@ speedup test:
 | golem testnet | 44m25.005s | 39m46.655s |
 | golem mainnet | | |
 
-The local system is a typical home desktop. A 4 core i6 4590@3.5Ghz.
+The local system is a typical home desktop. A 4 core i6 4590@3.5Ghz. My upload speed is around 10mbit, and most of the time for golem is spent uploading the file, so if you have faster internet your gains could be even better

@@ -14,6 +14,17 @@ Be careful when specifying video codecs to auto-editor, as only those that ship 
 
 for more info run ```python3 requestor.py --help``` 
 
+so far I have only tested it on ubuntu 20.04
+
+## Dependancies
+ - python packages:
+    - yapapi
+ - ffmpeg and ffprobe
+
+if you want to modify or build the docker image yourself you will need some additional dependancies:
+ - docker
+ - gvmkit-build
+
 
 ## What is Auto-Editor?
 [Auto-Editor](https://auto-editor.com/) is a command line tool to automate some simple video editiing tasks, such as cutting out silence and dead-space. Great for students who want to watch lecture videos in less time, or content creators editing a long interview.

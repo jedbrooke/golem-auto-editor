@@ -16,18 +16,19 @@
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-        <pre>
         <?php
             //TODO: load this from a config file
             $pepper="some_random_string";
             $PYTHON3="/usr/bin/python3";
-
-            echo(passthru("$PYTHON3 hello.py"));
+            $request_data_string = exec("$PYTHON3 /backend/logip.py " . hash("sha256",$pepper.escapeshellcmd($_SERVER["REMOTE_ADDR"])));
+            $request_data = json_decode($request_data_string);
+            echo("IP Hash: $request_data->ip_hash");
             echo("<br>");
-            echo(passthru("$PYTHON3 /backend/logip.py " . hash("sha256",$pepper.$_SERVER["REMOTE_ADDR"])));
+            echo("Num Requests: $request_data->requests");
+            echo("<br>");
+            echo("Last Request: $request_data->last_request");
             // echo(passthru("ls -l /backend/iplog.db"));
         ?>
-        </pre>
 
     </body>
 </html>

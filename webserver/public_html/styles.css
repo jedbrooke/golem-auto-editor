@@ -1,0 +1,117 @@
+#auto{
+    text-decoration: underline solid #3b8eda 0.1em;
+    text-underline-offset: 0.1em;
+    color: #3b8eda;
+}
+
+
+#editor{
+    text-decoration: underline solid #66c3f8 0.1em;
+    text-underline-offset: 0.1em;
+    color :#66c3f8;
+}
+
+#title-banner {
+    text-align: center;
+}
+
+.mouseover:hover{
+    opacity: 80%;
+}
+
+#messages{
+    margin: auto;
+    width: 100%;
+}
+
+#messages:hover{
+    text-decoration: underline solid 0.1em;
+    text-underline-offset: 0.1em;
+}
+
+fieldset {
+    display: flex;
+    flex-flow: column nowrap;
+    width: 100%;
+}
+
+#mainForm {
+    width: 100%;
+}
+
+#filedrag
+{
+    font-weight: bold;
+	color: #adb5bd;
+	border: 2px dashed #adb5bd;
+	border-radius: 7px;
+	cursor: default;
+
+    text-align: center;
+    line-height: 200px;
+    width: 100%;
+    height: 200px;
+}
+
+#filedrag.hover
+{
+	color: #00bc8c;
+	border-color: #00bc8c;
+	border-style: solid;
+	box-shadow: inset 0 3px 4px #888;
+}
+
+.custom-select {
+    flex-direction: row;
+}
+
+.options {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+    width: 100%;
+}
+
+.cheese {
+    padding-right: 1vw;
+}
+
+.footer {
+    background-color: #375a7f;
+    color: "#adb5bd";
+    text-align: center;
+}
+
+
+
+button.btn.btn-primary.btn-lg {
+    background-color: #20c997;
+    border-color: #20c997;
+}
+
+#accordion{
+    background-color: #3498db;
+    outline-color: #3498db;
+    height: 100%;
+}    
+
+.flex-wrapper {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex-grow: 1;
+}
+
+.header,
+.footer {
+    height: 40px;
+    line-height: 40px;
+    flex-shrink: 0;
+}
+
+.row {
+    margin-bottom: 20px;
+}

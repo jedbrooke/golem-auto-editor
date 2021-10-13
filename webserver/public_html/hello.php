@@ -2,7 +2,7 @@
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <![endif]-->
 <html>
     <head>
         <meta charset="utf-8">
@@ -16,11 +16,18 @@
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
+        <pre>
         <?php
-            echo(passthru("/usr/bin/python3 hello.py"));
+            //TODO: load this from a config file
+            $pepper="some_random_string";
+            $PYTHON3="/usr/bin/python3";
+
+            echo(passthru("$PYTHON3 hello.py"));
             echo("<br>");
-            echo("your ip is " . $_SERVER["REMOTE_ADDR"]);
+            echo(passthru("$PYTHON3 /backend/logip.py " . hash("sha256",$pepper.$_SERVER["REMOTE_ADDR"])));
+            // echo(passthru("ls -l /backend/iplog.db"));
         ?>
+        </pre>
 
     </body>
 </html>

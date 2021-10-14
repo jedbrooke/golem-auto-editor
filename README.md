@@ -1,7 +1,7 @@
 # golem-auto-editor
 Run Auto-Editor on the Golem Network.
 
-## Running
+## Running the requestor
 To run you first need to have yagna installed and the yagna daemon running. Instructions on how to do that [here](https://handbook.golem.network/requestor-tutorials/flash-tutorial-of-requestor-development) and [here](https://handbook.golem.network/requestor-tutorials/flash-tutorial-of-requestor-development/run-first-task-on-golem).
 
 Running the program looks like: 
@@ -15,6 +15,13 @@ Be careful when specifying video codecs to auto-editor, as only those that ship 
 for more info run ```python3 requestor.py --help``` 
 
 so far I have only tested it on ubuntu 20.04
+
+## Running the Web Interface
+As preparation for making this project into an online service, I have made available a docker container that will run a local version of the server.
+
+you will need docker to run the web interface
+
+just run `make run` to start the server and go to `localhost:4200` to see the interface.
 
 ## Dependancies
  - python packages:

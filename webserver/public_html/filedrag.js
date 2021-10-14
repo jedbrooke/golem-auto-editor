@@ -45,13 +45,13 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
 
 	// output file information
 	function ParseFile(file) {
-		if(file.type.substring(0, 6) === "video/" || file.type.substring(0, 6) === "audio/"){
+		if(file.type.substring(0, 6) === "video/" || file.type.substring(0, 6) === "audio/") {
 			Output(
 				"File information: " + file.name
 			);
 			document.getElementById("exportButton").disabled = false;
 
-		}else{
+		} else {
 			Output("Please upload a video or audio file (.mp4, .mp3 ...etc)");
 			document.getElementById("exportButton").disabled = true;
 		}

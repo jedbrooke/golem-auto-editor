@@ -21,7 +21,7 @@ As preparation for making this project into an online service, I have made avail
 
 you will need docker to run the web interface
 
-just run `make run` to start the server and go to `localhost:4200` to see the interface.
+just run `make && make run` to start the server and go to `localhost:4200` to see the interface.
 
 ## Dependancies
  - python packages:

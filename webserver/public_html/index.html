@@ -10,155 +10,271 @@
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
     <!-- JavaScript Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
 
     <title>Auto-Editor</title>
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
-    
+
 </head>
 
-<body>
+<body onload='init()'>
     <div class="flex-wrapper">
         <main class="container main-content">
             <div class="row">
                 <div class="col-md-12" id="title-banner">
                     <div class="mouseover" style="display:flex;">
-                        <h1 id="auto"><a href="http://auto-editor.com/" style="color:#3b8eda;">Auto</a></h1>
-                        <h1 id="editor"><a href="http://auto-editor.ddns.net/" style="color:#66c3f8;">-Editor</a></h1>
+                        <h1>
+                            <a href="http://auto-editor.com/"><span id="auto">Auto</span><span
+                                    id="editor">-Editor</span></a>&nbsp;On Golem
+                        </h1>
+                        <h3><sup>Beta!</sup></h3>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-12">
-                    <form id="mainForm" name="mainForm" action="hello.php" method="POST" enctype="multipart/form-data">
-                        <fieldset>
-                            <div class="form-group" id="filedrag">
-                                <label id="messages" for="filePath">Drag and drop files or click here to browse</label>
-                                <input type="file" style="visibility: hidden;" id="filePath" value="Upload Video" name="filePath"
-                                    accept="video/mp4,video/x-m4v,video/*,audio/x-m4a,audio/*">
+            <form id="mainForm" name="mainForm" action="hello.php" method="POST" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group" id="filedrag">
+                            <label id="messages" for="filePath">Drag and drop files or click here to
+                                browse</label>
+                            <input type="file" style="visibility: hidden;" id="filePath" value="Upload Video"
+                                name="filePath" accept="video/mp4,video/x-m4v,video/*,audio/x-m4a,audio/*">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm video-options">
+                        <div class="row">
+                            <div class="col-sm-auto">
+                                <label for="exportBit">Export Quality</label>
                             </div>
-                
-                            <div class="options">
-                                <div class="form-group">
-                                    <label class="col-form-label" for="exportBit">Export Quality</label>
-                                    <select class="custom-select" id="exportBit" name="exportBit" form="mainForm" data-toggle="tooltip"
-                                        data-placement="top" title="Lower quality will export faster, but look more blocky">
-                                        <option value="--constant_rate_factor 32">Low</option>
-                                        <option value="--constant_rate_factor 24">Medium</option>
-                                        <option value="--constant_rate_factor 20">High</option>
-                                    </select>
-                                </div>
-                
-                                <div class="form-group">
-                                    <label class="col-form-label" for="exportRes">Export Resolution</label>
-                                    <select class="custom-select" id="exportRes" name="exportRes" form="mainForm">
-                                        <option value="--output_height 720">720p</option>
-                                        <option value="--output_height 1080">1080p</option>
-                                        <option disabled value="--output_height 2160">4K (Coming Soon!)</option>
-                                    </select>
-                                </div>
-                
-                                <div class="form-group">
-                                    <label class="col-form-label" for="exportType">Export To</label>
-                                    <select class="custom-select" id="exportType" name="exportType" form="mainForm">
-                                        <option value="">Video File</option>
-                                        <option value="--export_to_premiere" disabled>Adobe Premiere (Coming Soon!)</option>
-                                        <option value="--export_to_final_cut_pro" disabled>Final Cut Pro (Coming Soon!)</option>
-                                        <option value="--export_to_resolve" disabled>DaVinci Resolve (Coming Soon!)</option>
-                                        <option value="--export_as_audio" disabled>Audio File (Coming Soon!)</option>
-                                    </select>
-                                </div>
+                            <div class="col-sm">
+                                <select class="custom-select" id="exportBit" name="exportBit" form="mainForm" data-toggle="tooltip" data-placement="top" title="Lower quality will export faster, but look more blocky">
+                                    <option value="--constant_rate_factor 32">Low</option>
+                                    <option value="--constant_rate_factor 24">Medium</option>
+                                    <option value="--constant_rate_factor 20">High</option>
+                                </select>
                             </div>
-                
-                            <div class="accordion" id="advancedSettings" name="advancedSettings">
-                                <div class="accordion-item">
-                                    <p class="accordion-header" id="headingOne" name="headingOne">
-                                        <button id="accordion" class="btn" type="button" data-bs-toggle="collapse"
-                                            data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                            Advanced Options
-                                        </button>
-                                    </p>
-                                    <div id="collapseOne" name="collapseOne" class="accordion-collapse collapse"
-                                        aria-labelledby="headingOne" data-bs-parent="#advancedSettings">
-                
-                                        <div class="accordion-body">
-                                            <div class="options">
-                
-                                                <div class="form-group">
-                                                    <label class="col-form-label" for="minClip" data-toggle="tooltip"
-                                                        data-placement="top" title="Minimum frames needed to keep a snippet">Min Clip
-                                                        Length(in frames)</label>
-                                                    <input type="number" class="form-control" value="3" id="minClip" name="minClip"
-                                                        min="0">
-                                                </div>
-                
-                                                <div class="form-group">
-                                                    <label class="col-form-label" for="minCut" data-toggle="tooltip"
-                                                        data-placement="top" title="Minimum frames needed to cut a snippet of sound">Min
-                                                        Cut Length(in frames)</label>
-                                                    <input type="number" class="form-control" value="1" id="minCut" name="minCut"
-                                                        min="0">
-                                                </div>
-                                            </div>
-                
-                                            <div class="options">
-                                                <div class="form-group">
-                                                    <label class="col-form-label" for="audBit" data-toggle="tooltip"
-                                                        data-placement="top" title="Sets the quality of the audio (kb/s)">Audio
-                                                        Bitrate</label>
-                                                    <input type="number" class="form-control" placeholder="128" id="audBit"
-                                                        name="audBit" min="0" max="320">
-                                                </div>
-                
-                                                <div class="form-group">
-                                                    <label class="col-form-label" for="vidBit" data-toggle="tooltip"
-                                                        data-placement="top" title="Constant rate factor of the video">CRF</label>
-                                                    <input type="number" class="form-control" placeholder="24" id="vidBit" name="vidBit"
-                                                        min="15" max="40" step="1">
-                                                </div>
-                                            </div>
-                
-                                            <div class="options">
-                                                <div class="form-group">
-                                                    <label class="col-form-label" for="vidSpeed" data-toggle="tooltip"
-                                                        data-placement="top" title="Set how fast loud portions of the video are">Video
-                                                        Speed(0.1x-10x)</label>
-                                                    <input type="number" class="form-control" value="1" id="vidSpeed" name="vidSpeed"
-                                                        max="10" min="0.1" step="0.1">
-                                                </div>
-                
-                                                <div class="form-group">
-                                                    <label class="col-form-label" for="silentSpeed" data-toggle="tooltip"
-                                                        data-placement="top"
-                                                        title="Set how fast silent portions of the video are">Silent
-                                                        Speed(0.1x-10x)</label>
-                                                    <input type="number" class="form-control" value="99999" id="silentSpeed"
-                                                        name="silentSpeed" max="99999" min="0.1" step="0.1">
-                                                </div>
-                                            </div>
-                
-                
+                        </div>
+                    </div>
+                    <div class="col-sm video-options">
+                        <div class="row">
+                            <div class="col-sm-auto">
+                                <label for="exportRes">Export Resolution</label>
+                            </div>
+                            <div class="col-sm">
+                                <select class="custom-select" id="exportRes" name="exportRes" form="mainForm">
+                                    <option value="--output_height 720">720p</option>
+                                    <option value="--output_height 1080">1080p</option>
+                                    <option disabled value="--output_height 2160">4K (Coming Soon!)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm video-options">
+                        <div class="row">
+                            <div class="col-sm-auto">
+                                <label for="exportType">Export To</label>
+                            </div>
+                            <div class="col-sm">
+                                <select class="custom-select" id="exportType" name="exportType" form="mainForm">
+                                    <option value="">Video File</option>
+                                    <option value="--export_to_premiere" disabled>Adobe Premiere (Coming Soon!)</option>
+                                    <option value="--export_to_final_cut_pro" disabled>Final Cut Pro (Coming Soon!)</option>
+                                    <option value="--export_to_resolve" disabled>DaVinci Resolve (Coming Soon!)</option>
+                                    <option value="--export_as_audio" disabled>Audio File (Coming Soon!)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="row">
+                    <div class="accordion accordion-flush" id="accordionFlushExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="flush-headingOne">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#flush-collapseOne" aria-expanded="false"
+                                    aria-controls="flush-collapseOne">
+                                    Advanced Options
+                                </button>
+                            </h2>
+                            <div id="flush-collapseOne" class="accordion-collapse collapse"
+                                aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                                <div class="accordion-body">
+                                    <div class="options">
+    
+                                        <div class="form-group">
+                                            <label class="col-form-label" for="minClip" data-toggle="tooltip"
+                                                data-placement="top" title="Minimum frames needed to keep a snippet">Min
+                                                Clip
+                                                Length(in frames)</label>
+                                            <input type="number" class="form-control" value="3" id="minClip" name="minClip"
+                                                min="0">
+                                        </div>
+    
+                                        <div class="form-group">
+                                            <label class="col-form-label" for="minCut" data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Minimum frames needed to cut a snippet of sound">Min
+                                                Cut Length(in frames)</label>
+                                            <input type="number" class="form-control" value="1" id="minCut" name="minCut"
+                                                min="0">
                                         </div>
                                     </div>
+    
+                                    <div class="options">
+                                        <div class="form-group">
+                                            <label class="col-form-label" for="audBit" data-toggle="tooltip"
+                                                data-placement="top" title="Sets the quality of the audio (kb/s)">Audio
+                                                Bitrate</label>
+                                            <input type="number" class="form-control" placeholder="128" id="audBit"
+                                                name="audBit" min="0" max="320">
+                                        </div>
+    
+                                        <div class="form-group">
+                                            <label class="col-form-label" for="vidBit" data-toggle="tooltip"
+                                                data-placement="top" title="Constant rate factor of the video">CRF</label>
+                                            <input type="number" class="form-control" placeholder="24" id="vidBit"
+                                                name="vidBit" min="15" max="40" step="1">
+                                        </div>
+                                    </div>
+    
+                                    <div class="options">
+                                        <div class="form-group">
+                                            <label class="col-form-label" for="vidSpeed" data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Set how fast loud portions of the video are">Video
+                                                Speed(0.1x-10x)</label>
+                                            <input type="number" class="form-control" value="1" id="vidSpeed"
+                                                name="vidSpeed" max="10" min="0.1" step="0.1">
+                                        </div>
+    
+                                        <div class="form-group">
+                                            <label class="col-form-label" for="silentSpeed" data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Set how fast silent portions of the video are">Silent
+                                                Speed(0.1x-10x)</label>
+                                            <input type="number" class="form-control" value="99999" id="silentSpeed"
+                                                name="silentSpeed" max="99999" min="0.1" step="0.1">
+                                        </div>
+                                    </div>
+    
+    
                                 </div>
                             </div>
-                
-                
-                            <button type="submit" id="exportButton" class="btn btn-primary btn-lg" name="submit">Export</button>
-                
-                        </fieldset>
-                
-                    </form>
+                        </div>
+                    </div>
                 </div>
+                <div class="row">
+                    <button type="button" onclick="validate()" id="exportButton" class="btn btn-primary btn-lg">Export</button>
+                </div>
+            </form>
+
+            <div class="row text-center">
+                <h3 id="survey-link"><a class="text-link" href="#">Take the Survey!</a></h3>
+            </div>
+            <div class="row">
+                <h2>FAQ:</h2>
+                <span class="faq-question">What is Auto-Editor?</span>
+                <p class="faq-answer">
+                    <a href="https://auto-editor.com" class="text-link">Auto-Editor</a> is a command line tool to
+                    automate some simple video editing tasks, such as cutting out silence and dead-space, adjusting the
+                    speed of a video, etc. Great for students who want to watch lecture videos in less time, or content
+                    creators editing a long interview.
+                </p>
+                <span class="faq-question">What is Golem?</span>
+                <p class="faq-answer">
+                    Golem Network is a decentralized distributed super-computing platform. Read more about it at their
+                    website: <a href="https://golem.network" class="text-link">https://golem.network</a>.
+                </p>
+                <p class="faq-answer">
+                    By <a href="https://handbook.golem.network/provider-tutorials/provider-tutorial"
+                        class="text-link">becoming a provider</a> you can help out auto-editor online, Golem, and earn
+                    money while doing so.
+                </p>
+
+                <span class="faq-question">What Data is stored by auto-editor on Golem?</span>
+                <p class="faq-answer">
+                    The video you upload will be stored for 24hrs on our servers. To retrieve your video from the
+                    download link, it will be protected by an access token.
+                    Additionally, the hash of your ip address will be logged for rate limiting purposes. hashes will be
+                    peppered, so as to be nearly impossible to reverse engineer.
+                    We will collect no other information. No data mining of the videos you upload, no selling your data
+                    to third parties, no shinanigins.
+                </p>
             </div>
         </main>
         <footer class="footer">
             <a style="color:#adb5bd;" href="https://github.com/jedbrooke/golem-auto-editor">Find us on GitHub</a>
             <img src="GithubLogo.png" alt="GitHub" style="width:2em; height:2em;">
-        </div>
+        </footer>
     </div>
     <script src="filedrag.js"></script>
-    
+    <script>
+        var MAX_SIZE = 250 * 1024 * 1024;
+
+
+        function init(params) {
+
+        }
+
+        function validate() {
+            let files = document.getElementById("filePath").files;
+            for (let i = 0, f; f = files[i]; i++) {
+                if (f.size > MAX_SIZE) {
+                    alert("Sorry, the file you have chosen is too big");
+                } else {
+
+                }
+            }
+        }
+
+        function uploadFile(name) {
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", "php/upload.php");
+            xhr.upload.addEventListener("progress", ({ loaded, total }) => {
+                let fileLoaded = Math.floor((loaded / total) * 100);
+                let fileTotal = Math.floor(total / 1000);
+                let fileSize;
+                (fileTotal < 1024) ? fileSize = fileTotal + " KB" : fileSize = (loaded / (1024 * 1024)).toFixed(2) + " MB";
+                let progressHTML = `<li class="row">
+                                    <i class="fas fa-file-alt"></i>
+                                    <div class="content">
+                                        <div class="details">
+                                        <span class="name">${name} • Uploading</span>
+                                        <span class="percent">${fileLoaded}%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                        <div class="progress" style="width: ${fileLoaded}%"></div>
+                                        </div>
+                                    </div>
+                                    </li>`;
+                uploadedArea.classList.add("onprogress");
+                progressArea.innerHTML = progressHTML;
+                if (loaded == total) {
+                    progressArea.innerHTML = "";
+                    let uploadedHTML = `<li class="row">
+                                        <div class="content upload">
+                                        <i class="fas fa-file-alt"></i>
+                                        <div class="details">
+                                            <span class="name">${name} • Uploaded</span>
+                                            <span class="size">${fileSize}</span>
+                                        </div>
+                                        </div>
+                                        <i class="fas fa-check"></i>
+                                    </li>`;
+                    uploadedArea.classList.remove("onprogress");
+                    uploadedArea.insertAdjacentHTML("afterbegin", uploadedHTML);
+                }
+            });
+            let data = new FormData(form);
+            xhr.send(data);
+        }
+    </script>
+
 </body>
 
 </html>

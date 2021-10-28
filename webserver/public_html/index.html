@@ -33,7 +33,7 @@
                     </div>
                 </div>
             </div>
-            <form id="mainForm" name="mainForm" action="hello.php" method="POST" enctype="multipart/form-data">
+            <form id="mainForm" name="mainForm" action="accept.php" method="POST" enctype="multipart/form-data">
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="form-group" id="filedrag">
@@ -169,7 +169,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <button type="button" onclick="validate()" id="exportButton" class="btn btn-primary btn-lg">Export</button>
+                    <button type="button" onclick="validate()" id="exportButton" class="btn btn-primary btn-lg">Upload</button>
                 </div>
             </form>
 
@@ -200,7 +200,7 @@
                 <p class="faq-answer">
                     The video you upload, as well as the filename you gave it, will be stored for 24hrs on our servers. To retrieve your video from the
                     download link, it will be protected by an access token.
-                    Additionally, the hash of your ip address will be logged for rate limiting purposes. hashes will be
+                    Additionally, the hash of your ip address + user agent string will be logged for rate limiting purposes. hashes will be
                     peppered, so as to be nearly impossible to reverse engineer.
                     We will collect no other information. No data mining of the videos you upload, no selling your data
                     to third parties, no shinanigins.
@@ -215,7 +215,7 @@
     <script src="filedrag.js"></script>
     <script>
         var MAX_SIZE = 250 * 1024 * 1024;
-
+        let form = document.getElementById("mainForm");
 
         function init(params) {
 
@@ -227,7 +227,7 @@
                 if (f.size > MAX_SIZE) {
                     alert("Sorry, the file you have chosen is too big");
                 } else {
-
+                    form.submit();
                 }
             }
         }

@@ -10,6 +10,7 @@ run:
 	 	-p $(PORT):80 \
 		-v $$(pwd)/webserver/public_html:/var/www/html \
 		-v $$(pwd)/webserver/backend:/backend \
+		-v $$(pwd)/requestor.py:/backend/requestor.py \
 		$(CONTAINER_NAME)
 	sudo docker exec -ti $(CONTAINER_NAME) "chgrp" "-R" "www-data" "/backend"
 

@@ -11,6 +11,9 @@ from yapapi.payload import vm
 from yapapi.rest.activity import BatchTimeoutError
 from yapapi.log import enable_default_logger, log_event_repr, log_summary
 
+from yapapi.services import Service
+
+
 import tempfile
 import subprocess
 import asyncio
@@ -19,32 +22,35 @@ import logging as log
 
 
 TEMPDIR = ""
-
 # old hash=497f08b035b71f9afbdca1f9430dd4c044b4e6cfe8dfa185e203de58
-async def golem_main(slices: List[str], auto_editor_args:str,budget=10,subnet_tag="devnet-beta.2",payment_driver="zksync",payment_network="rinkeby"):
+HASH="e0c9fc00d3a786ab849908cc75f091fe5026853591f80122e027d123"
+
+async def golem_main(slices: List[str], auto_editor_args:str,budget=10,subnet_tag="devnet-beta",payment_driver="zksync",payment_network="rinkeby"):
     package = await vm.repo(
-        image_hash="e0c9fc00d3a786ab849908cc75f091fe5026853591f80122e027d123",
+        image_hash=HASH,
         min_mem_gib=4.0,
         min_storage_gib=2.0,
         min_cpu_threads=1
     )
     async def worker(ctx: WorkContext, tasks):
+        script = ctx.new_script(timeout=timedelta(minutes=20))
         async for task in tasks:
             basename = os.path.basename(task.data)
             input_dest = f"/golem/input/{basename}"
             output_dest = f"/golem/output/{basename}"
             # TODO: send longer/more chunks to providers with more cores
-            ctx.send_file(task.data,input_dest)
+            script.upload_file(task.data,input_dest)
             args = " ".join([input_dest,auto_editor_args,"--output_file",output_dest]).split(' ')
-            ctx.run("/usr/local/bin/auto-editor",*args)
-            ctx.download_file(output_dest,os.path.join(TEMPDIR,"output",basename))
+            script.run("/usr/local/bin/auto-editor",*args)
+            script.download_file(output_dest,os.path.join(TEMPDIR,"output",basename))
             
             try:
-                yield ctx.commit(timeout=timedelta(minutes=60))
+                yield script
                 task.accept_result(result=output_dest)
             except BatchTimeoutError:
                 print(f"Task {task} timed out on {ctx.provider_name}, time: {task.running_time}",file=sys.stderr)
-                raise 
+                raise
+            script = ctx.new_script(timeout=timedelta(minutes=20))
             
 
 
@@ -55,8 +61,8 @@ async def golem_main(slices: List[str], auto_editor_args:str,budget=10,subnet_ta
     async with Golem(
         budget=budget,
         subnet_tag=subnet_tag,
-        driver=payment_driver,
-        network=payment_network,
+        payment_driver=payment_driver,
+        payment_network=payment_network,
         event_consumer=log_summary(log_event_repr)
     ) as golem:
         num_tasks = 0
@@ -88,12 +94,12 @@ def parse_args():
     parser.add_argument('-q','--quiet',dest="quiet", action="store_true", help="No info level output, errors only")
 
     golem_options = parser.add_argument_group("Golem Options","Settings for the golem network configuration. Default is to run on testnet")
-    golem_options.add_argument("--budget",default=10,type=float, help="bugdet in GLM or tGML for the task")
-    golem_options.add_argument("--mainnet",action="store_true",help="equivalent to --subnet_tag=mainnet --payment_driver=zksync --payment_network=mainnet")
-    golem_options.add_argument("--subnet_tag",default="devnet-beta.2",help="golem subnet [default: devnet-beta.2] [possible values: devnet-beta.2, mainnet]")
+    golem_options.add_argument("--budget",default=1,type=float, help="bugdet in GLM or tGML for the task")
+    golem_options.add_argument("--mainnet",action="store_true",help="equivalent to --subnet_tag=public-beta --payment_driver=erc20 --payment_network=polygon")
+    golem_options.add_argument("--subnet_tag",default="devnet-beta",help="golem subnet [default: devnet-beta] [possible values: devnet-beta, public-beta]")
     golem_options.add_argument("--payment_driver",default="zksync", help="golem payment driver [default: zksync] [possible values: zksync, erc20]")
-    golem_options.add_argument("--payment_network",default="rinkeby", help="golem payment network [default: rinkeby] [possible values: mainnet, rinkeby")
-    golem_options.set_defaults(budget=10,subnet_tag="devnet-beta.2",payment_driver="zksync",payment_network="rinkeby")
+    golem_options.add_argument("--payment_network",default="rinkeby", help="golem payment network [default: rinkeby] [possible values: mainnet, rinkeby, goerli, polygon, mumbai]")
+    golem_options.set_defaults(budget=1,subnet_tag="devnet-beta",payment_driver="zksync",payment_network="rinkeby")
 
     return parser.parse_args()
 

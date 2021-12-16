@@ -16,7 +16,7 @@
 
     <title>Auto-Editor</title>
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
-
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 </head>
 
 <body onload='init()'>
@@ -26,7 +26,7 @@
                 <div class="col-md-12" id="title-banner">
                     <div class="mouseover" style="display:flex;">
                         <h1>
-                            <a href="http://auto-editor.com/"><span id="auto">Auto</span><span
+                            <a href="#"><span id="auto">Auto</span><span
                                     id="editor">-Editor</span></a>&nbsp;On Golem
                         </h1>
                         <h3><sup>Beta!</sup></h3>
@@ -172,6 +172,7 @@
                     <button type="button" onclick="validate()" id="exportButton" class="btn btn-primary btn-lg">Upload</button>
                 </div>
             </form>
+            <div class="h-captcha" data-sitekey="23d27168-c14c-409d-baff-0d63c4833515"></div>
 
             <div class="row text-center">
                 <h3 id="survey-link"><a class="text-link" href="#">Take the Survey!</a></h3>

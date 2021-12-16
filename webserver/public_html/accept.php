@@ -42,6 +42,11 @@
                 <?php
                     if($_SERVER["REQUEST_METHOD"] == "POST") {
                         echo "POST";
+                        echo "<br>";
+                        foreach($_POST as $key => $value) {
+                            echo htmlspecialchars($key) . " = " . htmlspecialchars($value);
+                            echo "<br>";
+                        }
                     } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
                         echo "GET";
                         echo $_SERVER["HTTP_USER_AGENT"];

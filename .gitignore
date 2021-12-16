@@ -1,3 +1,7 @@
 *.gvmi
 *.mp4
 *.db
+
+//please really make sure you don't commit keys
+appkey.txt
+key.txt

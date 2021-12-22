@@ -14,13 +14,14 @@ appkey.txt:
 		fi; \
 	fi
 
+webserver/backend/requestor.py: requestor.py
+	ln requestor.py webserver/backend/requestor.py
 
-run: appkey.txt default 
+run: appkey.txt default webserver/backend/requestor.py
 	sudo docker run -dit --name $(CONTAINER_NAME) \
 	 	-p $(PORT):80 \
 		-v $$(pwd)/webserver/public_html:/var/www/html \
 		-v $$(pwd)/webserver/backend:/backend \
-		-v $$(pwd)/requestor.py:/backend/requestor.py \
 		$(CONTAINER_NAME)
 	sudo docker exec -ti $(CONTAINER_NAME) "chgrp" "-R" "www-data" "/backend"
 	sudo docker exec -ti $(CONTAINER_NAME) "yagna" "service" "run"

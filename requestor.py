@@ -4,6 +4,7 @@ import sys
 from typing import List
 import os
 import shutil
+import shlex
 
 from yapapi import (Golem, Task, WorkContext)
 from yapapi.engine import NoPaymentAccountError
@@ -21,7 +22,7 @@ import argparse
 import logging as log
 
 
-TEMPDIR = ""
+TEMPDIR = tempfile.mkdtemp()
 # old hash=497f08b035b71f9afbdca1f9430dd4c044b4e6cfe8dfa185e203de58
 HASH="e0c9fc00d3a786ab849908cc75f091fe5026853591f80122e027d123"
 
@@ -40,7 +41,7 @@ async def golem_main(slices: List[str], auto_editor_args:str,budget=10,subnet_ta
             output_dest = f"/golem/output/{basename}"
             # TODO: send longer/more chunks to providers with more cores
             script.upload_file(task.data,input_dest)
-            args = " ".join([input_dest,auto_editor_args,"--output_file",output_dest]).split(' ')
+            args = shlex.split(" ".join([input_dest,auto_editor_args,"--output_file",output_dest]))
             script.run("/usr/local/bin/auto-editor",*args)
             script.download_file(output_dest,os.path.join(TEMPDIR,"output",basename))
             
@@ -97,9 +98,9 @@ def parse_args():
     golem_options.add_argument("--budget",default=1,type=float, help="bugdet in GLM or tGML for the task")
     golem_options.add_argument("--mainnet",action="store_true",help="equivalent to --subnet_tag=public-beta --payment_driver=erc20 --payment_network=polygon")
     golem_options.add_argument("--subnet_tag",default="devnet-beta",help="golem subnet [default: devnet-beta] [possible values: devnet-beta, public-beta]")
-    golem_options.add_argument("--payment_driver",default="zksync", help="golem payment driver [default: zksync] [possible values: zksync, erc20]")
+    golem_options.add_argument("--payment_driver",default="erc20", help="golem payment driver [default: erc20] [possible values: zksync, erc20]")
     golem_options.add_argument("--payment_network",default="rinkeby", help="golem payment network [default: rinkeby] [possible values: mainnet, rinkeby, goerli, polygon, mumbai]")
-    golem_options.set_defaults(budget=1,subnet_tag="devnet-beta",payment_driver="zksync",payment_network="rinkeby")
+    golem_options.set_defaults(budget=1,subnet_tag="devnet-beta",payment_driver="erc20",payment_network="rinkeby")
 
     return parser.parse_args()
 
@@ -174,13 +175,13 @@ def main():
     global TEMPDIR
     if args.tempdir:
         TEMPDIR = args.tempdir
-    else:
-        TEMPDIR = tempfile.mkdtemp()
     log.debug(f"Using {TEMPDIR} as temp directory")
 
     # check auto-editor args
     # 
     auto_editor_args = args.auto_editor_args
+    if auto_editor_args is None:
+        auto_editor_args = ""
     for arg in ["--quiet","--no-open","--no_progress"]:
         if not arg in auto_editor_args:
             auto_editor_args += f" {arg}"
@@ -196,26 +197,31 @@ def main():
     # slice_length in seconds
     slice_length = 300
 
-    slices = [input_path]
+    
+    slices = [os.path.join(TEMPDIR,"input",os.path.basename(input_path))]
 
     single_slice = False
 
+    temp_input_dir = os.path.join(TEMPDIR,"input")  
+    os.mkdir(temp_input_dir)
+    
     if length > slice_length and not single_slice:
         # make equal slices close enough to target length
         num_slices = length // slice_length
         slice_length = int(length // num_slices) + 1
         log.debug(f"Using slice length {slice_length}s")
 
-        temp_input_dir = os.path.join(TEMPDIR,"input")  
-        # split into slices
-        os.mkdir(temp_input_dir)
 
+        # split into slices
         slice_dest = os.path.join(TEMPDIR,"input",f"slice_%05d.{ext}")
         
         # TODO: use pyav for better compatibility, not sure if this works on windows
         cmd = ["ffmpeg", "-v", "error", "-hide_banner", "-i", input_path, "-c", "copy", "-map", "0", "-segment_time", str(slice_length), "-f", "segment", "-reset_timestamps", "1", slice_dest]
         subprocess.run(cmd,stdout=sys.stdout)
         slices = [os.path.join(temp_input_dir,f) for f in os.listdir(temp_input_dir)]
+    else:
+        shutil.copy(input_path,os.path.join(TEMPDIR,"input"))
+
     
     log.debug("SLICES:")
     log.debug("\n".join(slices))
@@ -261,7 +267,8 @@ def main():
         cmd = ["ffmpeg", "-y", "-hide_banner", "-f", "concat", "-safe", "0", "-i", cat_list, "-c", "copy", output_path]
         subprocess.run(cmd)
     else:
-        shutil.move(os.path.join(TEMPDIR,"output",slices[0]),output_path)
+        print("copying",os.path.join(TEMPDIR,"output",os.path.basename(slices[0])),"to",output_path)
+        shutil.move(os.path.join(TEMPDIR,"output",os.path.basename(slices[0])),output_path)
 
     die()
 

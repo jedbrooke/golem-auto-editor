@@ -50,10 +50,12 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
 				"File information: " + file.name
 			);
 			document.getElementById("exportButton").disabled = false;
-
+			$id("exportButton").title = "Click here to upload";
+			
 		} else {
 			Output("Please upload a video or audio file (.mp4, .mp3 ...etc)");
 			document.getElementById("exportButton").disabled = true;
+			$id("exportButton").title = "Please select a video!";
 		}
 		
 
@@ -66,6 +68,7 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
 		var fileselect = $id("filePath"),
 			filedrag = $id("filedrag");
 		$id("exportButton").disabled = true;
+		$id("exportButton").title = "Please select a video!";
 		// file select
 		fileselect.addEventListener("change", FileSelectHandler, false);
 

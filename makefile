@@ -5,27 +5,35 @@ PORT=4200
 default:
 	sudo docker build -t $(CONTAINER_NAME) ./webserver
 
-appkey.txt:
-	@if ! [ -f  appkey.txt ]; then \
+webserver/backend/appkey.txt:
+	@if ! [ -f webserver/backend/appkey.txt ]; then \
 		if ! [ -z "$$YAGNA_APPKEY" ]; then \
-			echo $$YAGNA_APPKEY > appkey.txt; \
+			echo $$YAGNA_APPKEY > webserver/backend/appkey.txt; \
 		else \
-			echo "please put you YAGNA APPKEY in appkey.txt or in env var YAGNA_APPKEY"; \
+			echo "please put you YAGNA APPKEY in webserver/backend/appkey.txt or in env var YAGNA_APPKEY"; \
 		fi; \
 	fi
 
 webserver/backend/requestor.py: requestor.py
 	ln requestor.py webserver/backend/requestor.py
 
-run: appkey.txt default webserver/backend/requestor.py
+run: webserver/backend/appkey.txt default webserver/backend/requestor.py
 	sudo docker run -dit --name $(CONTAINER_NAME) \
 	 	-p $(PORT):80 \
 		-v $$(pwd)/webserver/public_html:/var/www/html \
-		-v $$(pwd)/webserver/backend:/backend \
+		-v $$(pwd)/webserver/backend:/var/www/backend \
 		$(CONTAINER_NAME)
-	sudo docker exec -ti $(CONTAINER_NAME) "chgrp" "-R" "www-data" "/backend"
-	sudo docker exec -ti $(CONTAINER_NAME) "yagna" "service" "run"
-	sudo docker exec -ti $(CONTAINER_NAME) "export" "YAGNA_APPKEY=$$(cat appkey.txt)"
+	sudo docker exec -tid $(CONTAINER_NAME) "yagna" "service" "run"
+	@echo "initializing yagna"
+	@sleep 5
+	sudo docker exec -ti $(CONTAINER_NAME) "yagna" "app-key" "create" "requestor" > webserver/backend/appkey.txt
+	sudo docker exec -ti $(CONTAINER_NAME) "chgrp" "-R" "www-data" "/var/www/backend"
+	sudo docker exec -ti $(CONTAINER_NAME) "yagna" "payment" "fund"
+	sudo docker exec -ti $(CONTAINER_NAME) "yagna" "payment" "status"
+
+check:
+	sudo docker exec -ti $(CONTAINER_NAME) "yagna" "payment" "init" "--sender"
+	sudo docker exec -ti $(CONTAINER_NAME) "/var/www/backend/run_example.sh"
 
 exec: 
 	sudo docker exec -ti $(CONTAINER_NAME) "/bin/bash"

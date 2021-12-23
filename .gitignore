@@ -3,5 +3,4 @@
 *.db
 
 //please really make sure you don't commit keys
-appkey.txt
-key.txt
+**/appkey.txt

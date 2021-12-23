@@ -47,6 +47,12 @@
                             echo htmlspecialchars($key) . " = " . htmlspecialchars($value);
                             echo "<br>";
                         }
+                        foreach($_FILES as $file => $value) {
+                            foreach($value as $key => $parameters) {
+                                echo htmlspecialchars($key) . " = " . htmlspecialchars($parameters);
+                                echo "<br>";
+                            }
+                        }
                     } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
                         echo "GET";
                         echo $_SERVER["HTTP_USER_AGENT"];

@@ -1,0 +1,2 @@
+#!/bin/bash
+YAGNA_APPKEY=$(cat /var/www/backend/appkey.txt | head -c 32) python3 /var/www/backend/requestor.py --payment_driver erc20 --payment_network rinkeby --auto-editor-args '--video-speed 1.1 --silent-speed 9999' /var/www/backend/example.mp4 -y

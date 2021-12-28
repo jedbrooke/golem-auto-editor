@@ -41,18 +41,71 @@
             <div class="row">
                 <?php
                     if($_SERVER["REQUEST_METHOD"] == "POST") {
-                        echo "POST";
-                        echo "<br>";
-                        foreach($_POST as $key => $value) {
-                            echo htmlspecialchars($key) . " = " . htmlspecialchars($value);
-                            echo "<br>";
+                        // echo "POST";
+                        // echo "<br>";
+                        // foreach($_POST as $key => $value) {
+                        //     echo htmlspecialchars($key) . " = " . htmlspecialchars($value);
+                        //     echo "<br>";
+                        // }
+                        // foreach($_FILES as $file => $value) {
+                        //     foreach($value as $key => $parameters) {
+                        //         echo htmlspecialchars($key) . " = " . htmlspecialchars($parameters);
+                        //         echo "<br>";
+                        //     }
+                        // }
+
+                        $file_ok = false;
+                        $error = "";
+
+                        // check php upload errors
+                        switch ($_FILES['filePath']['error']) {
+                            case UPLOAD_ERR_OK:
+                                $file_ok = true;
+                                break;
+                            case UPLOAD_ERR_NO_FILE:
+                                $error = 'No file sent.';
+                                break;
+                            case UPLOAD_ERR_INI_SIZE:
+                            case UPLOAD_ERR_FORM_SIZE:
+                                $error = 'Exceeded filesize limit.';
+                                break;
+                            default:
+                                $error = 'Unknown errors.';
                         }
-                        foreach($_FILES as $file => $value) {
-                            foreach($value as $key => $parameters) {
-                                echo htmlspecialchars($key) . " = " . htmlspecialchars($parameters);
-                                echo "<br>";
+
+                        // check mime type
+                        if ($file_ok) {
+                            $mime = explode('/',mime_content_type($_FILES["filePath"]["tmp_name"]))[0];
+                            if(strcmp('video',$mime) != 0) {
+                                $file_ok = false;
+                                $error = "\"" . htmlspecialchars($_FILES["filePath"]["name"]) . "\" is not a valid video file.";
+                            }
+
+                        }
+
+                        // check if it is actually readable by ffprobe
+                        if ($file_ok) {
+                            // $cmd = "/usr/bin/ffprobe -v quiet -print_format json -show_format -show_streams " . $_FILES["filePath"]["tmp_name"] . " 2>&1";
+                            $cmd = "/usr/bin/ffprobe -hide_banner " . $_FILES["filePath"]["tmp_name"] . " 2>&1";
+                            $ret = null;
+                            exec($cmd,$return_var=$ret);
+                            if ($ret != 0) {
+                                $file_ok = false;
+                                $error = "Error reading \"" . htmlspecialchars($_FILES["filePath"]["name"]) . "\", make sure it is a valid video file.";
                             }
                         }
+
+                        if ($file_ok) {
+                            // handle job
+                            echo "<br>";
+                            echo "File is good!";
+                        } else {
+                            echo "<br>";
+                            echo $error;
+                        }
+
+
+                    
                     } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
                         echo "GET";
                         echo $_SERVER["HTTP_USER_AGENT"];

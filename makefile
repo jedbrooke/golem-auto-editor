@@ -15,7 +15,9 @@ webserver/backend/appkey.txt:
 	fi
 
 webserver/backend/requestor.py: requestor.py
-	ln requestor.py webserver/backend/requestor.py
+	@if ! [ -f webserver/backend/requestor.py ]; then \
+		ln requestor.py webserver/backend/requestor.py; \
+	fi
 
 run: webserver/backend/appkey.txt default webserver/backend/requestor.py
 	sudo docker run -dit --name $(CONTAINER_NAME) \

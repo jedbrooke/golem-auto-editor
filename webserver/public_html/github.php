@@ -4,6 +4,7 @@
         $digest = 'sha256=' . hash_hmac('sha256',file_get_contents("php://input"), $secret);
         if(hash_equals($_SERVER["HTTP_X_HUB_SIGNATURE_256"],$digest)) {
             exec("cd /var/www/git-repo && git pull");
+            exec("cd /var/www/git-repo && make webserver/backend/requestor.py");
             exec("rsync -ra /var/www/git-repo/webserver/public_html/ /var/www/html");
             exec("rsync -ra /var/www/git-repo/webserver/backend/ /var/www/backend");
         } else {

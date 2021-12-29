@@ -170,6 +170,7 @@
                     </div>
                 </div>
                 <div class="row">
+                    <p id="error-box" class="error"></p>
                     <button type="button" onclick="validate()" id="exportButton" class="btn btn-primary btn-lg">Upload</button>
                 </div>
             </form>
@@ -224,12 +225,18 @@
         }
         function validate() {
             let files = document.getElementById("filePath").files;
-            for (let i = 0, f; f = files[i]; i++) {
-                if (f.size > MAX_SIZE) {
-                    alert("Sorry, the file you have chosen is too big");
-                } else {
-                    form.submit();
+            let box = document.getElementById("error-box");
+            if (files.length < 1) {
+                box.innerHTML = "Please select a file to upload!";
+            } else {
+                for (let i = 0, f; f = files[i]; i++) {
+                    if (f.size > MAX_SIZE) {
+                        box.innerHTML = "Sorry, the file you have chosen is too big, limit is 250MB";
+                    } else {
+                        form.submit();
+                    }
                 }
+
             }
         }
 

@@ -90,7 +90,9 @@ fieldset div {
     text-align: center;
 }
 
-
+.error {
+    color: red;
+}
 
 button.btn.btn-primary.btn-lg {
     background-color: #20c997;

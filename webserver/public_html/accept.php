@@ -75,11 +75,11 @@
                                 case UPLOAD_ERR_INI_SIZE:
                                 case UPLOAD_ERR_FORM_SIZE:
                                     $file_ok = false;
-                                    $error = 'Exceeded filesize limit.';
+                                    $error = 'Sorry, your file exceeded the upload limit of 250MB.';
                                     break;
                                 default:
                                     $file_ok = false;
-                                    $error = 'Unknown errors.';
+                                    $error = 'Sorry, an unknown error occurred.';
                             }
                         }
                         

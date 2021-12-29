@@ -54,25 +54,35 @@
                         //     }
                         // }
 
-                        $file_ok = false;
+                        $file_ok = true;
                         $error = "";
 
                         // check php upload errors
-                        switch ($_FILES['filePath']['error']) {
-                            case UPLOAD_ERR_OK:
-                                $file_ok = true;
-                                break;
-                            case UPLOAD_ERR_NO_FILE:
-                                $error = 'No file sent.';
-                                break;
-                            case UPLOAD_ERR_INI_SIZE:
-                            case UPLOAD_ERR_FORM_SIZE:
-                                $error = 'Exceeded filesize limit.';
-                                break;
-                            default:
-                                $error = 'Unknown errors.';
+                        if (sizeof($_POST) == 0) {
+                            $file_ok = false;
+                            $error = "Error, invalid form submission";
                         }
 
+
+                        if ($file_ok) {
+                            switch ($_FILES['filePath']['error']) {
+                                case UPLOAD_ERR_OK:
+                                    break;
+                                case UPLOAD_ERR_NO_FILE:
+                                    $file_ok = false;
+                                    $error = 'No file sent.';
+                                    break;
+                                case UPLOAD_ERR_INI_SIZE:
+                                case UPLOAD_ERR_FORM_SIZE:
+                                    $file_ok = false;
+                                    $error = 'Exceeded filesize limit.';
+                                    break;
+                                default:
+                                    $file_ok = false;
+                                    $error = 'Unknown errors.';
+                            }
+                        }
+                        
                         // check mime type
                         if ($file_ok) {
                             $mime = explode('/',mime_content_type($_FILES["filePath"]["tmp_name"]))[0];
@@ -94,7 +104,7 @@
                                 $error = "Error reading \"" . htmlspecialchars($_FILES["filePath"]["name"]) . "\", make sure it is a valid video file.";
                             }
                         }
-
+                        
                         if ($file_ok) {
                             // handle job
                             echo "<br>";

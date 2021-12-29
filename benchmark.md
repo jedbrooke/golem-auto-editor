@@ -15,9 +15,10 @@ speedup test:
 
 
 | System | normal test | speed up test|  
-| --- | --- | -- | 
+| --- | --- | -- |
 | local system| 3m27.897s | 6m1.555s |
-| golem testnet | 5m44.056s | 5m35.058s |
+| golem testnet (10mbit upload) | 5m44.056s | 5m35.058s |
+| golem testnet (1gbit upload) | 3m58.282s | 4m13.386s |
 | golem mainnet | | |
 
 A more real world example.
@@ -30,4 +31,4 @@ A more real world example.
 | golem testnet | 44m25.005s | 39m46.655s |
 | golem mainnet | | |
 
-The local system is a typical home desktop, with 4 core i6 4590 @ 3.5Ghz. My upload speed is around 10mbit, and most of the time for golem is spent uploading the file, so if you have faster internet your gains could be even better
+The local system is a typical home desktop, with 4 core i6 4590 @ 3.5Ghz. Most of the time is spent uploading the file, so results will depend on your inernet speed

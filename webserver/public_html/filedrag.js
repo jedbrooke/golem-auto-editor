@@ -34,17 +34,20 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
 		FileDragHover(e);
 
 		// fetch FileList object
-		var files = e.target.files || e.dataTransfer.files;
+		var files = e.dataTransfer.files;
 
 		// process all File objects
 		for (var i = 0, f; f = files[i]; i++) {
 			ParseFile(f);
 		}
-
 		let input = document.getElementById("filePath");
 		input.files = files;
 		document.getElementById("error-box").innerHTML = '';
 
+	}
+
+	function FileChangeHandler(e) {
+		document.getElementById("error-box").innerHTML = '';
 	}
 
 	// output file information
@@ -72,7 +75,7 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
 			filedrag = $id("filedrag");
 		$id("exportButton").title = "Please select a video!";
 		// file select
-		fileselect.addEventListener("change", FileSelectHandler, false);
+		fileselect.addEventListener("change", FileChangeHandler, false);
 
 		// is XHR2 available?
 		var xhr = new XMLHttpRequest();

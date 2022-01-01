@@ -31,7 +31,7 @@
                 <div class="col-md-12" id="title-banner">
                     <div class="mouseover" style="display:flex;">
                         <h1>
-                            <a href="http://auto-editor.com/"><span id="auto">Auto</span><span
+                            <a href="http://auto-editor.online/"><span id="auto">Auto</span><span
                                     id="editor">-Editor</span></a>&nbsp;On Golem
                         </h1>
                         <h3><sup>Beta!</sup></h3>
@@ -40,82 +40,113 @@
             </div>
             <div class="row">
                 <?php
+                    $PYTHON3="/usr/bin/python3";
+                    $MAX_USER_REQUESTS = 10;
+                    $MAX_IP_REQUESTS = 100;
                     if($_SERVER["REQUEST_METHOD"] == "POST") {
-                        // echo "POST";
-                        // echo "<br>";
-                        // foreach($_POST as $key => $value) {
-                        //     echo htmlspecialchars($key) . " = " . htmlspecialchars($value);
-                        //     echo "<br>";
-                        // }
-                        // foreach($_FILES as $file => $value) {
-                        //     foreach($value as $key => $parameters) {
-                        //         echo htmlspecialchars($key) . " = " . htmlspecialchars($parameters);
-                        //         echo "<br>";
-                        //     }
-                        // }
-
-                        $file_ok = true;
-                        $error = "";
-
-                        // check php upload errors
-                        if (sizeof($_POST) == 0) {
-                            $file_ok = false;
-                            $error = "Error, invalid form submission";
-                        }
-
-
-                        if ($file_ok) {
-                            switch ($_FILES['filePath']['error']) {
-                                case UPLOAD_ERR_OK:
-                                    break;
-                                case UPLOAD_ERR_NO_FILE:
-                                    $file_ok = false;
-                                    $error = 'No file sent.';
-                                    break;
-                                case UPLOAD_ERR_INI_SIZE:
-                                case UPLOAD_ERR_FORM_SIZE:
-                                    $file_ok = false;
-                                    $error = 'Sorry, your file exceeded the upload limit of 250MB.';
-                                    break;
-                                default:
-                                    $file_ok = false;
-                                    $error = 'Sorry, an unknown error occurred.';
-                            }
-                        }
-                        
-                        // check mime type
-                        if ($file_ok) {
-                            $mime = explode('/',mime_content_type($_FILES["filePath"]["tmp_name"]))[0];
-                            if(strcmp('video',$mime) != 0) {
-                                $file_ok = false;
-                                $error = "\"" . htmlspecialchars($_FILES["filePath"]["name"]) . "\" is not a valid video file.";
-                            }
-
-                        }
-
-                        // check if it is actually readable by ffprobe
-                        if ($file_ok) {
-                            // $cmd = "/usr/bin/ffprobe -v quiet -print_format json -show_format -show_streams " . $_FILES["filePath"]["tmp_name"] . " 2>&1";
-                            $cmd = "/usr/bin/ffprobe -hide_banner " . $_FILES["filePath"]["tmp_name"] . " 2>&1";
-                            $ret = null;
-                            exec($cmd,$return_var=$ret);
-                            if ($ret != 0) {
-                                $file_ok = false;
-                                $error = "Error reading \"" . htmlspecialchars($_FILES["filePath"]["name"]) . "\", make sure it is a valid video file.";
-                            }
-                        }
-                        
-                        if ($file_ok) {
-                            // handle job
+                        $pepper = file_get_contents("/var/www/backend/pepper.txt");
+                        $ip = hash("sha256",$pepper.$_SERVER["REMOTE_ADDR"]);
+                        $user_agent = hash("sha256",$pepper.$_SERVER["HTTP_USER_AGENT"]);
+                        $db_cmd = "$PYTHON3 /var/www/backend/logip.py $ip $user_agent";
+                        $requests_data = json_decode(exec($db_cmd));
+                        $quota_exceeded = ($requests_data->ip > $MAX_IP_REQUESTS) || ($requests_data->indv > $MAX_USER_REQUESTS);
+                        if ($quota_exceeded) {
+                            echo "Sorry, this IP address has exceeded it's daily quota, try again tomorrow.";
                             echo "<br>";
-                            echo "File is good!";
                         } else {
-                            echo "<br>";
-                            echo $error;
+
+                            // echo "POST";
+                            // echo "<br>";
+                            // foreach($_POST as $key => $value) {
+                            //     echo htmlspecialchars($key) . " = " . htmlspecialchars($value);
+                            //     echo "<br>";
+                            // }
+                            // foreach($_FILES as $file => $value) {
+                            //     foreach($value as $key => $parameters) {
+                            //         echo htmlspecialchars($key) . " = " . htmlspecialchars($parameters);
+                            //         echo "<br>";
+                            //     }
+                            // }
+    
+                            $file_ok = true;
+                            $error = "";
+    
+                            // check php upload errors
+                            if (sizeof($_POST) == 0) {
+                                $file_ok = false;
+                                $error = "Error, invalid form submission";
+                            }
+    
+    
+                            if ($file_ok) {
+                                switch ($_FILES['filePath']['error']) {
+                                    case UPLOAD_ERR_OK:
+                                        break;
+                                    case UPLOAD_ERR_NO_FILE:
+                                        $file_ok = false;
+                                        $error = 'No file sent.';
+                                        break;
+                                    case UPLOAD_ERR_INI_SIZE:
+                                    case UPLOAD_ERR_FORM_SIZE:
+                                        $file_ok = false;
+                                        $error = 'Sorry, your file exceeded the upload limit of 250MB.';
+                                        break;
+                                    default:
+                                        $file_ok = false;
+                                        $error = 'Sorry, an unknown error occurred.';
+                                }
+                            }
+                            
+                            // check mime type
+                            if ($file_ok) {
+                                $mime = explode('/',mime_content_type($_FILES["filePath"]["tmp_name"]))[0];
+                                if(strcmp('video',$mime) != 0) {
+                                    $file_ok = false;
+                                    $error = "\"" . htmlspecialchars($_FILES["filePath"]["name"]) . "\" is not a valid video file.";
+                                }
+    
+                            }
+    
+                            // check if it is actually readable by ffprobe
+                            if ($file_ok) {
+                                // $cmd = "/usr/bin/ffprobe -v quiet -print_format json -show_format -show_streams " . $_FILES["filePath"]["tmp_name"] . " 2>&1";
+                                $cmd = "/usr/bin/ffprobe -hide_banner " . $_FILES["filePath"]["tmp_name"] . " 2>&1";
+                                $ret = null;
+                                exec($cmd,$return_var=$ret);
+                                if ($ret != 0) {
+                                    $file_ok = false;
+                                    $error = "Error reading \"" . htmlspecialchars($_FILES["filePath"]["name"]) . "\", make sure it is a valid video file.";
+                                }
+                            }
+                            
+                            if ($file_ok) {
+                                // handle job
+                                echo "<br>";
+                                echo "File is good!";
+                                $name = sha1_file($_FILES["filePath"]["tmp_name"]);
+                                $ext = array_pop(explode(".",$_FILES["filePath"]["name"]));
+                                $dest = "/var/www/backend/queue/files/$name.$ext";
+                                $success = move_uploaded_file($_FILES["filePath"]["tmp_name"],$dest);
+                                $job_info = array();
+                                $job_info["path"] = $dest;
+                                $job_info["status"] = "waiting";
+                                $job_info["orig_name"] = $_FILES["filePath"]["name"];
+                                $job_info["creation_time"] = date_timestamp_get(date_create());
+                                $args = "";
+                                foreach($_POST as $key => $value) {
+                                    if ($value != '') {
+                                        $args .= escapeshellarg("--$key") . " " . escapeshellarg($value);
+                                        $args .= " "; 
+                                    }
+                                }
+                                $job_info["args"] = $args;
+                                file_put_contents("/var/www/backend/queue/jobs/$name.json",json_encode($job_info));
+                            } else {
+                                echo "<br>";
+                                echo $error;
+                            }
                         }
 
-
-                    
                     } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
                         echo "GET";
                         echo $_SERVER["HTTP_USER_AGENT"];

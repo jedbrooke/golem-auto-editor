@@ -4,3 +4,6 @@
 
 //please really make sure you don't commit keys
 **/appkey.txt
+
+webserver/backend/queue
+webserver/backend/finished

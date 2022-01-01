@@ -48,6 +48,9 @@ Developed by Craig Buckler (@craigbuckler) of OptimalWorks.net
 
 	function FileChangeHandler(e) {
 		document.getElementById("error-box").innerHTML = '';
+		for( var i = 0, f; f = document.getElementById('filePath').files[i]; i++) {
+			ParseFile(f);
+		}
 	}
 
 	// output file information

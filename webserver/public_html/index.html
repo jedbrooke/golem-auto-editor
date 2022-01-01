@@ -52,28 +52,28 @@
                                 <label for="exportBit">Export Quality</label>
                             </div>
                             <div class="col-sm">
-                                <select class="custom-select" id="exportBit" name="exportBit" form="mainForm" data-toggle="tooltip" data-placement="top" title="Lower quality will export faster, but look more blocky">
-                                    <option value="--constant_rate_factor 32">Low</option>
-                                    <option value="--constant_rate_factor 24">Medium</option>
-                                    <option value="--constant_rate_factor 20">High</option>
+                                <select class="custom-select" id="exportBit" name="preset" form="mainForm" data-toggle="tooltip" data-placement="top" title="Lower quality will export faster, but look more blocky">
+                                    <option value="veryfast">Low</option>
+                                    <option value="fast">Medium</option>
+                                    <option value="medium">High</option>
                                 </select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm video-options">
+                    <!-- <div class="col-sm video-options">
                         <div class="row">
                             <div class="col-sm-auto">
                                 <label for="exportRes">Export Resolution</label>
                             </div>
                             <div class="col-sm">
-                                <select class="custom-select" id="exportRes" name="exportRes" form="mainForm">
-                                    <option value="--output_height 720">720p</option>
-                                    <option value="--output_height 1080">1080p</option>
-                                    <option disabled value="--output_height 2160">4K (Coming Soon!)</option>
+                                <select class="custom-select" id="exportRes" name="output_height" form="mainForm">
+                                    <option disabled value="720">720p</option>
+                                    <option disabled value="1080">1080p</option>
+                                    <option disabled value="2160">4K (Coming Soon!)</option>
                                 </select>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="col-sm video-options">
                         <div class="row">
                             <div class="col-sm-auto">
@@ -112,7 +112,7 @@
                                                 data-placement="top" title="Minimum frames needed to keep a snippet">Min
                                                 Clip
                                                 Length(in frames)</label>
-                                            <input type="number" class="form-control" value="3" id="minClip" name="minClip"
+                                            <input type="number" class="form-control" placeholder="3" id="minClip" name="min_clip_length"
                                                 min="0">
                                         </div>
     
@@ -121,7 +121,7 @@
                                                 data-placement="top"
                                                 title="Minimum frames needed to cut a snippet of sound">Min
                                                 Cut Length(in frames)</label>
-                                            <input type="number" class="form-control" value="1" id="minCut" name="minCut"
+                                            <input type="number" class="form-control" placeholder="1" id="minCut" name="min_cut_length"
                                                 min="0">
                                         </div>
                                     </div>
@@ -132,14 +132,14 @@
                                                 data-placement="top" title="Sets the quality of the audio (kb/s)">Audio
                                                 Bitrate</label>
                                             <input type="number" class="form-control" placeholder="128" id="audBit"
-                                                name="audBit" min="0" max="320">
+                                                name="audio_bitrate" min="0" max="320">
                                         </div>
     
                                         <div class="form-group">
                                             <label class="col-form-label" for="vidBit" data-toggle="tooltip"
                                                 data-placement="top" title="Constant rate factor of the video">CRF</label>
                                             <input type="number" class="form-control" placeholder="24" id="vidBit"
-                                                name="vidBit" min="15" max="40" step="1">
+                                                name="constant_rate_factor" min="15" max="40" step="1">
                                         </div>
                                     </div>
     
@@ -149,8 +149,8 @@
                                                 data-placement="top"
                                                 title="Set how fast loud portions of the video are">Video
                                                 Speed(0.1x-10x)</label>
-                                            <input type="number" class="form-control" value="1" id="vidSpeed"
-                                                name="vidSpeed" max="10" min="0.1" step="0.1">
+                                            <input type="number" class="form-control" placeholder="1" id="vidSpeed"
+                                                name="video_speed" max="10" min="0.1" step="0.1">
                                         </div>
     
                                         <div class="form-group">
@@ -158,8 +158,8 @@
                                                 data-placement="top"
                                                 title="Set how fast silent portions of the video are">Silent
                                                 Speed(0.1x-10x)</label>
-                                            <input type="number" class="form-control" value="99999" id="silentSpeed"
-                                                name="silentSpeed" max="99999" min="0.1" step="0.1">
+                                            <input type="number" class="form-control" placeholder="99999" id="silentSpeed"
+                                                name="silent_speed" max="99999" min="0.1" step="0.1">
                                         </div>
                                     </div>
     

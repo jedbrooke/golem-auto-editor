@@ -19,6 +19,9 @@ webserver/backend/requestor.py: requestor.py
 		ln requestor.py webserver/backend/requestor.py; \
 	fi
 
+webserver/backend/pepper.txt:
+	cat /dev/random | tr -dc "[:alnum:]" | head -c 32 > webserver/backend/pepper.txt
+
 run: webserver/backend/appkey.txt default webserver/backend/requestor.py
 	sudo docker run -dit --name $(CONTAINER_NAME) \
 	 	-p $(PORT):80 \

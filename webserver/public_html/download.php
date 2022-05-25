@@ -24,6 +24,23 @@
         <title>Upload Video - auto-editor online</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <?php 
+            $token = "";
+            if($_SERVER["REQUEST_METHOD"] == "POST") {
+                $token = $_POST["token"];
+            } else if ($_SERVER["REQUEST_METHOD"] == "GET") {
+                if(isset($_GET["token"])) {
+                    $token = $_GET["token"];
+                }
+            }
+            $job_path = "/var/www/backend/queue/jobs/$token.json";
+            if (file_exists($job_path)) {
+                $job = json_decode(file_get_contents($job_path), true);
+                if (strcmp($job["status"],"waiting") == 0 || strcmp($job["status"],"started" == 0)) {
+                    echo "<meta http-equiv=\"refresh\" content=\"5;url=download.php?token=$token\">";
+                }
+            }
+        ?>
         
         <!-- CSS only -->
         <link rel="stylesheet" href="styles.css">
@@ -57,9 +74,8 @@
                     $PYTHON3="/usr/bin/python3";
                     $MAX_USER_REQUESTS = 100;
                     $MAX_IP_REQUESTS = 1000;
-                    if($_SERVER["REQUEST_METHOD"] == "POST") {
-                        $token = $_POST["token"];
-                        echo "<pre>" . htmlspecialchars($_POST["token"]) . "</pre>";
+
+                    function get_status($token) {
                         // check if the video for this token is done
                         $job_path = "/var/www/backend/queue/jobs/$token.json";
                         $job = NULL;
@@ -92,12 +108,23 @@ END;
                                 break;
                         }
                         echo "<div>$msg</div>";
+
                         if ($job["status"] == 'missing') {
                             include "tokenform.html";
                         }
+                    }
+
+                    if($_SERVER["REQUEST_METHOD"] == "POST") {
+                        echo "<pre>" . htmlspecialchars($_POST["token"]) . "</pre>";
+                        get_status($_POST["token"]);
+                        
 
                     } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
-                        include "tokenform.html";
+                        if(isset($_GET['token'])) {
+                            get_status($_GET['token']);
+                        } else {
+                            include "tokenform.html";
+                        }
                     }
                 ?>
                 <br>

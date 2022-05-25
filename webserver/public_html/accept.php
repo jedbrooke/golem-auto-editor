@@ -1,3 +1,8 @@
+<?php
+    if ($_SERVER["REQUEST_METHOD"] == "GET") {
+        header('Location: /');
+    }
+?>
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -41,8 +46,8 @@
             <div class="row">
                 <?php
                     $PYTHON3="/usr/bin/python3";
-                    $MAX_USER_REQUESTS = 10;
-                    $MAX_IP_REQUESTS = 100;
+                    $MAX_USER_REQUESTS = 100;
+                    $MAX_IP_REQUESTS = 1000;
                     if($_SERVER["REQUEST_METHOD"] == "POST") {
                         $pepper = file_get_contents("/var/www/backend/pepper.txt");
                         $ip = hash("sha256",$pepper.$_SERVER["REMOTE_ADDR"]);
@@ -77,7 +82,7 @@
                                 $error = "Error, invalid form submission";
                             }
     
-    
+                            // check file upload errors
                             if ($file_ok) {
                                 switch ($_FILES['filePath']['error']) {
                                     case UPLOAD_ERR_OK:
@@ -122,16 +127,19 @@
                             if ($file_ok) {
                                 // handle job
                                 echo "<br>";
-                                echo "File is good!";
+                                echo "Your video was succesfully uploaded!";
                                 $name = sha1_file($_FILES["filePath"]["tmp_name"]);
                                 $ext = array_pop(explode(".",$_FILES["filePath"]["name"]));
                                 $dest = "/var/www/backend/queue/files/$name.$ext";
                                 $success = move_uploaded_file($_FILES["filePath"]["tmp_name"],$dest);
                                 $job_info = array();
-                                $job_info["path"] = $dest;
+                                $job_info["video_path"] = $dest;
+                                // this will be useful when creating the output file
+                                $job_info["video_ext"] = $ext;
                                 $job_info["status"] = "waiting";
                                 $job_info["orig_name"] = $_FILES["filePath"]["name"];
                                 $job_info["creation_time"] = date_timestamp_get(date_create());
+                                $job_info["finished_time"] = -1;
                                 $args = "";
                                 foreach($_POST as $key => $value) {
                                     if ($value != '') {
@@ -140,16 +148,22 @@
                                     }
                                 }
                                 $job_info["args"] = $args;
+                                
+                                $token = bin2hex(random_bytes(16));
+                                echo "<br>";
+                                echo "your access token is: <pre>$token</pre>";                                
+                                $job_info["token_hash"] = hash("sha256",$token);
+                                $job_info["job_path"] = "/var/www/backend/queue/jobs/$name.json";
                                 file_put_contents("/var/www/backend/queue/jobs/$name.json",json_encode($job_info));
+                                include "success.html";
+                                echo "<form id='viewForm' action='download.php' method='POST'>";
+                                echo "<input type='hidden' name='token' value='$token'/>";
                             } else {
                                 echo "<br>";
                                 echo $error;
                             }
                         }
 
-                    } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
-                        echo "GET";
-                        echo $_SERVER["HTTP_USER_AGENT"];
                     }
                 ?>
             </div>

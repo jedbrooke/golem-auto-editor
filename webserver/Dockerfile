@@ -10,6 +10,7 @@ RUN apt install -y python3 python3-pip \
         wget \
         --no-install-recommends
 
+RUN pip3 install --upgrade pip
 RUN pip3 install wheel
 RUN pip3 install setuptools 
 RUN pip3 install certifi

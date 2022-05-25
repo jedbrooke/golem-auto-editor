@@ -36,9 +36,10 @@ run: webserver/backend/appkey.txt default webserver/backend/requestor.py
 	sudo docker exec -ti $(CONTAINER_NAME) "yagna" "payment" "fund"
 	sudo docker exec -ti $(CONTAINER_NAME) "yagna" "payment" "status"
 
-check:
+start:
+	sudo docker start $(CONTAINER_NAME)
 	sudo docker exec -ti $(CONTAINER_NAME) "yagna" "payment" "init" "--sender"
-	sudo docker exec -ti $(CONTAINER_NAME) "/var/www/backend/run_example.sh"
+	sudo docker exec -ti $(CONTAINER_NAME) "python3" "/var/www/backend/jobserver.py"
 
 exec: 
 	sudo docker exec -ti $(CONTAINER_NAME) "/bin/bash"
@@ -48,4 +49,11 @@ stop:
 
 clean: stop
 	sudo docker rm $(CONTAINER_NAME)
+
+.PHONY: clean_jobs
+clean_jobs:
+	rm -f webserver/backend/queue/files/*
+	rm -f webserver/backend/queue/jobs/*
+	rm -f webserver/backend/finished/*
+
 

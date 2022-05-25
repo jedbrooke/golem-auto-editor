@@ -133,6 +133,7 @@
                                 $ext = array_pop(explode(".",$_FILES["filePath"]["name"]));
                                 $dest = "/var/www/backend/queue/files/$token.$ext";
                                 $success = move_uploaded_file($_FILES["filePath"]["tmp_name"],$dest);
+                                chmod($dest, 0764);
                                 $job_info = array();
                                 $job_info["video_path"] = $dest;
                                 // this will be useful when creating the output file
@@ -153,7 +154,9 @@
                                 echo "your access token is: <pre>$token</pre>";                                
                                 $job_info["token"] = $token;
                                 $job_info["job_path"] = "/var/www/backend/queue/jobs/$token.json";
-                                file_put_contents("/var/www/backend/queue/jobs/$token.json",json_encode($job_info));
+                                file_put_contents($job_info["job_path"],json_encode($job_info));
+                                chmod($job_info["job_path"],0764);
+
                                 include "success.html";
                                 echo "<form id='viewForm' action='download.php' method='POST'>";
                                 echo "<input type='hidden' name='token' value='$token'/>";

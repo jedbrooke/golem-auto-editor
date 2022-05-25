@@ -128,9 +128,10 @@
                                 // handle job
                                 echo "<br>";
                                 echo "Your video was succesfully uploaded!";
-                                $name = sha1_file($_FILES["filePath"]["tmp_name"]);
+                                // $job_info["sha1"] = sha1_file($_FILES["filePath"]["tmp_name"]);
+                                $token = bin2hex(random_bytes(16));
                                 $ext = array_pop(explode(".",$_FILES["filePath"]["name"]));
-                                $dest = "/var/www/backend/queue/files/$name.$ext";
+                                $dest = "/var/www/backend/queue/files/$token.$ext";
                                 $success = move_uploaded_file($_FILES["filePath"]["tmp_name"],$dest);
                                 $job_info = array();
                                 $job_info["video_path"] = $dest;
@@ -148,13 +149,11 @@
                                     }
                                 }
                                 $job_info["args"] = $args;
-                                
-                                $token = bin2hex(random_bytes(16));
                                 echo "<br>";
                                 echo "your access token is: <pre>$token</pre>";                                
-                                $job_info["token_hash"] = hash("sha256",$token);
-                                $job_info["job_path"] = "/var/www/backend/queue/jobs/$name.json";
-                                file_put_contents("/var/www/backend/queue/jobs/$name.json",json_encode($job_info));
+                                $job_info["token"] = $token;
+                                $job_info["job_path"] = "/var/www/backend/queue/jobs/$token.json";
+                                file_put_contents("/var/www/backend/queue/jobs/$token.json",json_encode($job_info));
                                 include "success.html";
                                 echo "<form id='viewForm' action='download.php' method='POST'>";
                                 echo "<input type='hidden' name='token' value='$token'/>";

@@ -38,6 +38,7 @@ run: webserver/backend/appkey.txt default webserver/backend/requestor.py
 
 start:
 	sudo docker start $(CONTAINER_NAME)
+	sudo docker exec -tid $(CONTAINER_NAME) "yagna" "service" "run"
 	sudo docker exec -ti $(CONTAINER_NAME) "yagna" "payment" "init" "--sender"
 	sudo docker exec -ti $(CONTAINER_NAME) "python3" "/var/www/backend/jobserver.py"
 

@@ -1,0 +1,26 @@
+<h3>Enter your video token:</h3>
+<form id="tokenForm" action="" method="POST">
+    <input id="token" type="text" name="token">
+    <button id="submit" type="submit" class="btn btn-primary" placeholder="token" style="pointer-events: auto;">Download!</button>
+</form>
+<script type="text/javascript">
+    let tokenBox = document.getElementById("token");
+    let button = document.getElementById("submit");
+    function onChange(e) {
+        if(tokenBox.value.length > 0) {
+            button.disabled = false;
+            button.title = "Download!";
+        } else {
+            button.disabled = true;
+            button.title = "please enter your video token";
+        }
+    };
+    onChange(null);
+    tokenBox.addEventListener("change", onChange, false);
+    tokenBox.addEventListener("keypress", onChange, false);
+    tokenBox.addEventListener("paste", onChange, false);
+    tokenBox.addEventListener("input", onChange, false);
+
+
+
+</script>

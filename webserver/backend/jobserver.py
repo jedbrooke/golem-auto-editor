@@ -37,13 +37,13 @@ def write_job(job):
         json.dump(job,fp)
 
 def run_job(job):
-    job["status"] = JOB_STATUS.STARTED
-    write_job(job)
-    output_path = os.path.join(OUTPUT_PATH,f"{os.path.basename(job['video_path'])}.{job['video_ext']}")
-    cmd = f"{PYTHON3} {REQUESTOR} --auto-editor-args \"{job['args']}\" --output {output_path} -y {job['video_path']} --subnet_tag auto-editor"
+    output_path = os.path.join(OUTPUT_PATH,f"{job['token']}.{job['video_ext']}")
+    cmd = f"{PYTHON3} {REQUESTOR} --auto-editor-args \"{job['args']}\" --output {output_path} -y {job['video_path']}"
     subprocess.run(shlex.split(cmd),stdout=sys.stdout,stderr=sys.stderr,env=REQUESTOR_ENV)
     job = json_loadp(job["job_path"])
     job["finished_time"] = int(time.time())
+    job["status"] = JOB_STATUS.FINISHED
+    job["output_path"] = output_path
     write_job(job)
 
 
@@ -69,11 +69,11 @@ def main():
             jobs_list = [json_loadp(j.path) for j in os.scandir(JOBS_DIR)]
             for job in jobs_list:
                 if job["status"] == JOB_STATUS.WAITING:
+                    job["status"] = JOB_STATUS.STARTED
+                    write_job(job)
                     threading.Thread(target=run_job,args=(job,)).start()
                     JOBS.append(job)
-                elif job["status"] == JOB_STATUS.FINISHED:
-                    print("found job:",job["status"])
-        
+
         JOBS = [job for job in JOBS if job["status"] in [JOB_STATUS.WAITING, JOB_STATUS.STARTED]]
         time.sleep(1)
         # running = False

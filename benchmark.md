@@ -28,7 +28,8 @@ A more real world example.
 | System | normal test | speed up test |
 | -- | --- | -- |
 | local system | 104m2.400s | 103m28.684s |
-| golem testnet | 44m25.005s | 39m46.655s |
+| golem testnet (10mbit upload) | 44m25.005s | 39m46.655s |
+| golem testnet (1gbit updload) | | 24m21.278s |
 | golem mainnet | | |
 
 The local system is a typical home desktop, with 4 core i6 4590 @ 3.5Ghz. Most of the time is spent uploading the file, so results will depend on your inernet speed
